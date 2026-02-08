@@ -111,6 +111,38 @@
     margin-top: 15px;
 }
 
+/* ======== ESTILO DO DADO ======== */
+
+#dice-btn {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dice-face {
+    width: 60px;
+    height: 60px;
+    background: white;
+    border-radius: 10px;
+    border: 2px solid #006b42;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    padding: 8px;
+}
+
+.pip {
+    width: 10px;
+    height: 10px;
+    background: black;
+    border-radius: 50%;
+    justify-self: center;
+    align-self: center;
+}
+
+
 .dice-value {
     font-size: 24px;
     font-weight: bold;
