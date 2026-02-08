@@ -8,6 +8,7 @@
 }
 
 .ludo-container .ludo {
+
     height: 450px;
     width: 100%;
     background-image: url('./ludo-bg.jpg');
@@ -28,15 +29,17 @@
     position: absolute;
     transform: translate(50%, 50%);
     transition: all .2s;
-    z-index: 1;
-}
 
+    z-index: 1;
+
+    /* top: 15%;
+    left: 50%; */
+}
 .player-piece.highlight {
     cursor: pointer;
     border: 2px dashed;
     animation: spin 1s infinite linear;
 }
-
 @keyframes spin {
     0% {
         transform: translate(50%, 50%) rotate(0deg);
@@ -86,8 +89,6 @@
     }
 }
 
-/* ===== BOTÕES ===== */
-
 .btn {
     padding: 8px 20px;
     border: none;
@@ -110,48 +111,6 @@
     margin-top: 15px;
 }
 
-/* ======== ESTILO DO DADO ======== */
-
-#dice-btn {
-    width: 80px;
-    height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.dice-face {
-    width: 60px;
-    height: 60px;
-    background: white;
-    border-radius: 10px;
-    border: 2px solid #006b42;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(3, 1fr);
-    padding: 8px;
-}
-
-/* pontinhos do dado */
-.pip {
-    width: 10px;
-    height: 10px;
-    background: black;
-    border-radius: 50%;
-    justify-self: center;
-    align-self: center;
-}
-
-/* posições dos pontinhos */
-.top-left { grid-area: 1 / 1; }
-.top-right { grid-area: 1 / 3; }
-.middle-left { grid-area: 2 / 1; }
-.middle-right { grid-area: 2 / 3; }
-.bottom-left { grid-area: 3 / 1; }
-.bottom-right { grid-area: 3 / 3; }
-.center { grid-area: 2 / 2; }
-
-/* número do dado */
 .dice-value {
     font-size: 24px;
     font-weight: bold;
