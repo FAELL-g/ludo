@@ -5,7 +5,6 @@ const ludo = new Ludo();
 const diceBtn = document.getElementById("dice-btn");
 const diceFace = document.querySelector(".dice-face");
 
-// posições dos pontinhos para cada número do dado
 const faces = {
   1: ["center"],
   2: ["top-left", "bottom-right"],
@@ -18,16 +17,13 @@ const faces = {
 diceBtn.addEventListener("click", () => {
   const roll = Math.floor(Math.random() * 6) + 1;
 
-  // limpa face anterior
   diceFace.innerHTML = "";
 
-  // cria os pontinhos certos
   faces[roll].forEach(pos => {
     const pip = document.createElement("span");
     pip.classList.add("pip", pos);
     diceFace.appendChild(pip);
   });
 
-  // mostra número também (opcional)
   document.querySelector(".dice-value").textContent = roll;
 });
