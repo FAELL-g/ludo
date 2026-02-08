@@ -5,6 +5,7 @@ const ludo = new Ludo();
 const diceBtn = document.getElementById("dice-btn");
 const diceFace = document.querySelector(".dice-face");
 
+// posições visuais do dado
 const faces = {
   1: ["center"],
   2: ["top-left", "bottom-right"],
@@ -14,8 +15,14 @@ const faces = {
   6: ["top-left", "top-right", "middle-left", "middle-right", "bottom-left", "bottom-right"]
 };
 
-diceBtn.addEventListener("click", () => {
-  const roll = Math.floor(Math.random() * 6) + 1;
+// 🔽 MUITO IMPORTANTE: não criamos mais nosso próprio "roll"!
+// Apenas ESCUTAMOS quando o jogo já rolou o dado:
+const diceValueBox = document.querySelector(".dice-value");
+
+// observamos mudanças no número do dado
+const observer = new MutationObserver(() => {
+  const roll = Number(diceValueBox.textContent);
+  if (!roll) return;
 
   diceFace.innerHTML = "";
 
@@ -24,6 +31,6 @@ diceBtn.addEventListener("click", () => {
     pip.classList.add("pip", pos);
     diceFace.appendChild(pip);
   });
-
-  document.querySelector(".dice-value").textContent = roll;
 });
+
+observer.observe(diceValueBox, { childList: true });
