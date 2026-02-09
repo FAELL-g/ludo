@@ -187,36 +187,42 @@ export class Ludo {
             const isKill = this.checkForKill(player, piece);
 
             if (isKill) {
-                let extra = 20;
+    let extra = 20;
 
-                const extraInterval = setInterval(() => {
+    const extraInterval = setInterval(() => {
 
-                    // SE CHEGAR NA CASA FINAL → PARA TUDO
-                    if (this.currentPositions[player][piece] === HOME_POSITIONS[player]) {
-                        clearInterval(extraInterval);
-                        this.state = STATE.DICE_NOT_ROLLED;
-                        return;
-                    }
+        // Se chegou na casa final → para tudo
+        if (this.currentPositions[player][piece] === HOME_POSITIONS[player]) {
+            clearInterval(extraInterval);
+            this.state = STATE.DICE_NOT_ROLLED;
+            return;
+        }
 
-                    this.incrementPiecePosition(player, piece);
-                    extra--;
+        this.incrementPiecePosition(player, piece);
+        extra--;
 
-                    // 🔥 SE COMER OUTRA PEÇA DURANTE O BÔNUS → GANHA +20 DE NOVO
-                    const killedAgain = this.checkForKill(player, piece);
-                    if (killedAgain) {
-                        extra = 20; // RESETA O BÔNUS
-                    }
+        // acabou os 20 passos
+        if (extra === 0) {
+            clearInterval(extraInterval);
 
-                    // acabou os 20 normalmente
-                    if (extra === 0) {
-                        clearInterval(extraInterval);
-                        this.state = STATE.DICE_NOT_ROLLED;
-                    }
+            // 🔥 VERIFICA SE COMEU NA CASA FINAL DOS 20
+            const killedAgain = this.checkForKill(player, piece);
 
-                }, 150);
-
+            if (killedAgain) {
+                // 🚀 COMEÇA OUTROS 20 AUTOMATICAMENTE
+                this.movePiece(player, piece, 20);
                 return;
             }
+
+            // se NÃO comeu, segue o jogo normal
+            this.state = STATE.DICE_NOT_ROLLED;
+        }
+
+    }, 150);
+
+    return;
+}
+
 
             // se tirou 6, joga de novo
             if (this.diceValue === 6) {
