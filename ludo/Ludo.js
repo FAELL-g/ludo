@@ -189,36 +189,39 @@ export class Ludo {
                 const isKill = this.checkForKill(player, piece);
 
                 if (isKill) {
-                    let extra = 20;
+    let extra = 20;
 
-                    const extraInterval = setInterval(() => {
+    const extraInterval = setInterval(() => {
 
-                        if (this.currentPositions[player][piece] === HOME_POSITIONS[player]) {
-                            clearInterval(extraInterval);
-                            this.state = STATE.DICE_NOT_ROLLED;
-                            return;
-                        }
+        // 🔥 ANDA 1 CASA
+        this.incrementPiecePosition(player, piece);
+        extra--;
 
-                        this.incrementPiecePosition(player, piece);
-                        extra--;
+        // 🔥 CHEGOU NA HOME DURANTE O BÔNUS?
+        if (this.currentPositions[player][piece] === HOME_POSITIONS[player]) {
+            clearInterval(extraInterval);
+            this.state = STATE.DICE_NOT_ROLLED; // segue o jogo normal
+            return;
+        }
 
-                        if (extra === 0) {
-                            clearInterval(extraInterval);
+        // 🔥 VERIFICA SE COMEU ALGUÉM NESTA CASA
+        const killedAgain = this.checkForKill(player, piece);
 
-                            const killedAgain = this.checkForKill(player, piece);
+        if (killedAgain) {
+            extra = 20; // ganhou MAIS 20
+        }
 
-                            if (killedAgain) {
-                                this.movePiece(player, piece, 20);
-                                return;
-                            }
+        // 🔥 ACABARAM OS 20 PASSOS?
+        if (extra === 0) {
+            clearInterval(extraInterval);
+            this.state = STATE.DICE_NOT_ROLLED;
+        }
 
-                            this.state = STATE.DICE_NOT_ROLLED;
-                        }
+    }, 150);
 
-                    }, 150);
+    return;
+}
 
-                    return;
-                }
 
                 if (this.diceValue === 6) {
                     this.state = STATE.DICE_NOT_ROLLED;
