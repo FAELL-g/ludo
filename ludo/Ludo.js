@@ -169,39 +169,47 @@ export class Ludo {
     }
 
     movePiece(player, piece, moveBy) {
-        // this.setPiecePosition(player, piece, this.currentPositions[player][piece] + moveBy)
-        const interval = setInterval(() => {
-            this.incrementPiecePosition(player, piece);
-            moveBy--;
+    const interval = setInterval(() => {
+        this.incrementPiecePosition(player, piece);
+        moveBy--;
 
-            if(moveBy === 0) {
-                clearInterval(interval);
+        if (moveBy === 0) {
+            clearInterval(interval);
 
-                // check if player won
-                if(this.hasPlayerWon(player)) {
-                    alert(`Player: ${player} has won!`);
-                    this.resetGame();
-                    return;
-                }
-
-                const isKill = this.checkForKill(player, piece);
-
-if (isKill) {
-    // 🔥 ANDA MAIS 20 CASAS QUANDO CAPTURAR
-    this.movePiece(player, piece, 20);
-    return;
-}
-
-if (this.diceValue === 6) {
-    this.state = STATE.DICE_NOT_ROLLED;
-    return;
-}
-
-
-                this.incrementTurn();
+            // verifica vitória
+            if (this.hasPlayerWon(player)) {
+                alert(`Player: ${player} has won!`);
+                this.resetGame();
+                return;
             }
-        }, 200);
-    }
+
+            const isKill = this.checkForKill(player, piece);
+
+            if (isKill) {
+                // 🔥 ANDA +20 CASAS DE VERDADE
+                let extra = 20;
+                const extraInterval = setInterval(() => {
+                    this.incrementPiecePosition(player, piece);
+                    extra--;
+
+                    if (extra === 0) {
+                        clearInterval(extraInterval);
+                        this.state = STATE.DICE_NOT_ROLLED;
+                    }
+                }, 150);
+
+                return;
+            }
+
+            if (this.diceValue === 6) {
+                this.state = STATE.DICE_NOT_ROLLED;
+                return;
+            }
+
+            this.incrementTurn();
+        }
+    }, 200);
+}
 
     checkForKill(player, piece) {
         const currentPosition = this.currentPositions[player][piece];
