@@ -187,21 +187,30 @@ export class Ludo {
             const isKill = this.checkForKill(player, piece);
 
             if (isKill) {
-                // 🔥 BONUS REAL DE +20 (AGORA FUNCIONA)
-                let extra = 20;
+    let extra = 20;
 
-                const extraInterval = setInterval(() => {
-                    this.incrementPiecePosition(player, piece);
-                    extra--;
+    const extraInterval = setInterval(() => {
 
-                    if (extra === 0) {
-                        clearInterval(extraInterval);
-                        this.state = STATE.DICE_NOT_ROLLED;
-                    }
-                }, 150);
+        // Se já chegou na casa final, PARA TUDO
+        if (this.currentPositions[player][piece] === HOME_POSITIONS[player]) {
+            clearInterval(extraInterval);
+            this.state = STATE.DICE_NOT_ROLLED;
+            return;
+        }
 
-                return; // MUITO IMPORTANTE — para aqui
-            }
+        this.incrementPiecePosition(player, piece);
+        extra--;
+
+        // Se acabou os 20 passos normalmente
+        if (extra === 0) {
+            clearInterval(extraInterval);
+            this.state = STATE.DICE_NOT_ROLLED;
+        }
+
+    }, 150);
+
+    return;
+}
 
             // se tirou 6, joga de novo
             if (this.diceValue === 6) {
