@@ -192,28 +192,27 @@ export class Ludo {
     let extra = 20;
 
     const extraInterval = setInterval(() => {
-
-        // anda 1 casa
         this.incrementPiecePosition(player, piece);
         extra--;
 
-        // 🔥 REGRA PRINCIPAL: entrou na HOME? PARA TUDO
+        // 🔥 Se entrou na HOME, para tudo
         if (this.currentPositions[player][piece] === HOME_POSITIONS[player]) {
             clearInterval(extraInterval);
-            this.state = STATE.DICE_NOT_ROLLED; // segue jogo normal
+            this.state = STATE.DICE_NOT_ROLLED;
             return;
         }
 
-        // verifica se comeu alguém NESTA CASA
-        const killedAgain = this.checkForKill(player, piece);
-
-        // se comeu → RENOVA o bônus para mais 20
-        if (killedAgain) {
-            extra = 20;
-        }
-
-        // acabou os 20 passos sem entrar na home
+        // 🔥 Quando termina o bônus, verifica kill na última casa
         if (extra === 0) {
+            const killedAtEnd = this.checkForKill(player, piece);
+
+            if (killedAtEnd) {
+                // reinicia o bônus de 20 casas
+                extra = 20;
+                return; // continua o intervalo
+            }
+
+            // acabou o bônus sem matar na última casa
             clearInterval(extraInterval);
             this.state = STATE.DICE_NOT_ROLLED;
         }
@@ -222,6 +221,7 @@ export class Ludo {
 
     return;
 }
+
 
 
 
