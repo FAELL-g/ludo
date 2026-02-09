@@ -8,7 +8,6 @@
 }
 
 .ludo-container .ludo {
-
     height: 450px;
     width: 100%;
     background-image: url('./ludo-bg.jpg');
@@ -21,45 +20,77 @@
     width: 100%;
 }
 
+/* ======== PEÃO CLÁSSICO TIPO A IMAGEM ======== */
 .player-piece {
-    width: 3%;
-    height: 3%;
-    border: 2px solid;
-    border-radius: 10px;
+    width: 3.2%;
+    height: 5%;
     position: absolute;
     transform: translate(50%, 50%);
     transition: all .2s;
-
     z-index: 1;
 
-    /* top: 15%;
-    left: 50%; */
+    /* formato de peão */
+    border-radius: 50% 50% 35% 35%;
+    border: 2px solid #000;
+
+    /* sombra para ficar mais 3D */
+    box-shadow: 0 3px 0 rgba(0,0,0,0.4);
 }
+
+/* cabeça redonda */
+.player-piece::before {
+    content: "";
+    position: absolute;
+    top: -38%;
+    left: 22%;
+    width: 56%;
+    height: 56%;
+    background: inherit;
+    border-radius: 50%;
+    border: 2px solid #000;
+}
+
+/* base do peão */
+.player-piece::after {
+    content: "";
+    position: absolute;
+    bottom: -12%;
+    left: 5%;
+    width: 90%;
+    height: 14%;
+    background: #000;
+    border-radius: 50%;
+}
+
+/* quando pode clicar */
 .player-piece.highlight {
     cursor: pointer;
-    border: 2px dashed;
+    border: 2px dashed black;
     animation: spin 1s infinite linear;
 }
+
 @keyframes spin {
     0% {
         transform: translate(50%, 50%) rotate(0deg);
     }
     50% {
-        transform: translate(50%, 50%) rotate(180deg) scale(1.4);
+        transform: translate(50%, 50%) rotate(180deg) scale(1.2);
     }
     100% {
         transform: translate(50%, 50%) rotate(360deg);
     }
 }
 
+/* ===== CORES DOS JOGADORES ===== */
 [player-id="P1"].player-piece {
-    background-color: #2eafff;
+    background: linear-gradient(#4ac7ff, #1f8cff);
 }
 
 [player-id="P2"].player-piece {
-    background-color: #00b550;
+    background: linear-gradient(#00d95f, #009d48);
 }
 
+/* ===== BASES DOS JOGADORES ===== */
 .player-base {
     width: 40%;
     height: 40%;
@@ -89,6 +120,7 @@
     }
 }
 
+/* ===== BOTÕES ===== */
 .btn {
     padding: 8px 20px;
     border: none;
@@ -111,6 +143,7 @@
     margin-top: 15px;
 }
 
+/* número do dado */
 .dice-value {
     font-size: 24px;
     font-weight: bold;
