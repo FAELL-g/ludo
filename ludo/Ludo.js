@@ -183,34 +183,40 @@ export class Ludo {
                 return;
             }
 
-            // AGORA verifica captura
+            // verifica captura
             const isKill = this.checkForKill(player, piece);
 
             if (isKill) {
-    let extra = 20;
+                let extra = 20;
 
-    const extraInterval = setInterval(() => {
+                const extraInterval = setInterval(() => {
 
-        // Se já chegou na casa final, PARA TUDO
-        if (this.currentPositions[player][piece] === HOME_POSITIONS[player]) {
-            clearInterval(extraInterval);
-            this.state = STATE.DICE_NOT_ROLLED;
-            return;
-        }
+                    // SE CHEGAR NA CASA FINAL → PARA TUDO
+                    if (this.currentPositions[player][piece] === HOME_POSITIONS[player]) {
+                        clearInterval(extraInterval);
+                        this.state = STATE.DICE_NOT_ROLLED;
+                        return;
+                    }
 
-        this.incrementPiecePosition(player, piece);
-        extra--;
+                    this.incrementPiecePosition(player, piece);
+                    extra--;
 
-        // Se acabou os 20 passos normalmente
-        if (extra === 0) {
-            clearInterval(extraInterval);
-            this.state = STATE.DICE_NOT_ROLLED;
-        }
+                    // 🔥 SE COMER OUTRA PEÇA DURANTE O BÔNUS → GANHA +20 DE NOVO
+                    const killedAgain = this.checkForKill(player, piece);
+                    if (killedAgain) {
+                        extra = 20; // RESETA O BÔNUS
+                    }
 
-    }, 150);
+                    // acabou os 20 normalmente
+                    if (extra === 0) {
+                        clearInterval(extraInterval);
+                        this.state = STATE.DICE_NOT_ROLLED;
+                    }
 
-    return;
-}
+                }, 150);
+
+                return;
+            }
 
             // se tirou 6, joga de novo
             if (this.diceValue === 6) {
