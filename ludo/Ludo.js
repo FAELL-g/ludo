@@ -7,13 +7,15 @@ export class Ludo {
         P2: []
     }
 
+    // 👇 NOVO: guarda quem tem bônus de +10
+    pendingBonusPiece = null;
+
     _diceValue;
     get diceValue() {
         return this._diceValue;
     }
     set diceValue(value) {
         this._diceValue = value;
-
         UI.setDiceValue(value);
     }
 
@@ -33,7 +35,7 @@ export class Ludo {
     set state(value) {
         this._state = value;
 
-        if(value === STATE.DICE_NOT_ROLLED) {
+        if (value === STATE.DICE_NOT_ROLLED) {
             UI.enableDice();
             UI.unhighlightPieces();
         } else {
@@ -42,21 +44,10 @@ export class Ludo {
     }
 
     constructor() {
-        console.log('Hello World! Lets play Ludo!');
-
-        // this.diceValue = 4;
-        // this.turn = 0;
-        // this.state = STATE.DICE_ROLLED;
         this.listenDiceClick();
         this.listenResetClick();
         this.listenPieceClick();
-
         this.resetGame();
-        // this.setPiecePosition('P1', 0, 0);
-        // this.setPiecePosition('P2', 0, 1);
-        // this.diceValue = 6;
-        // console.log(this.getEligiblePieces('P1'))
-        
     }
 
     listenDiceClick() {
@@ -64,19 +55,16 @@ export class Ludo {
     }
 
     onDiceClick() {
-        console.log('dice clicked!');
         this.diceValue = 1 + Math.floor(Math.random() * 6);
         this.state = STATE.DICE_ROLLED;
-        
         this.checkForEligiblePieces();
     }
 
     checkForEligiblePieces() {
         const player = PLAYERS[this.turn];
-        // eligible pieces of given player
         const eligiblePieces = this.getEligiblePieces(player);
-        if(eligiblePieces.length) {
-            // highlight the pieces
+
+        if (eligiblePieces.length) {
             UI.highlightPieces(player, eligiblePieces);
         } else {
             this.incrementTurn();
@@ -92,21 +80,16 @@ export class Ludo {
         return [0, 1, 2, 3].filter(piece => {
             const currentPosition = this.currentPositions[player][piece];
 
-            if(currentPosition === HOME_POSITIONS[player]) {
+            if (currentPosition === HOME_POSITIONS[player]) return false;
+
+            if (BASE_POSITIONS[player].includes(currentPosition) && this.diceValue !== 6) {
                 return false;
             }
 
-            if(
-                BASE_POSITIONS[player].includes(currentPosition)
-                && this.diceValue !== 6
-            ){
-                return false;
-            }
-
-            if(
+            if (
                 HOME_ENTRANCE[player].includes(currentPosition)
                 && this.diceValue > HOME_POSITIONS[player] - currentPosition
-                ) {
+            ) {
                 return false;
             }
 
@@ -119,7 +102,6 @@ export class Ludo {
     }
 
     resetGame() {
-        console.log('reset game');
         this.currentPositions = structuredClone(BASE_POSITIONS);
 
         PLAYERS.forEach(player => {
@@ -130,6 +112,7 @@ export class Ludo {
 
         this.turn = 0;
         this.state = STATE.DICE_NOT_ROLLED;
+        this.pendingBonusPiece = null;
     }
 
     listenPieceClick() {
@@ -139,10 +122,9 @@ export class Ludo {
     onPieceClick(event) {
         const target = event.target;
 
-        if(!target.classList.contains('player-piece') || !target.classList.contains('highlight')) {
+        if (!target.classList.contains('player-piece') || !target.classList.contains('highlight')) {
             return;
         }
-        console.log('piece clicked')
 
         const player = target.getAttribute('player-id');
         const piece = target.getAttribute('piece');
@@ -150,16 +132,24 @@ export class Ludo {
     }
 
     handlePieceClick(player, piece) {
-        console.log(player, piece);
         const currentPosition = this.currentPositions[player][piece];
-        
-        if(BASE_POSITIONS[player].includes(currentPosition)) {
+
+        if (BASE_POSITIONS[player].includes(currentPosition)) {
             this.setPiecePosition(player, piece, START_POSITIONS[player]);
             this.state = STATE.DICE_NOT_ROLLED;
             return;
         }
 
         UI.unhighlightPieces();
+
+        // 🔥 SE ESTÁ ESCOLHENDO PEÇA PARA +10
+        if (this.pendingBonusPiece === player) {
+            this.pendingBonusPiece = null;
+            this.movePiece(player, piece, 10);
+            return;
+        }
+
+        // jogada normal
         this.movePiece(player, piece, this.diceValue);
     }
 
@@ -169,72 +159,76 @@ export class Ludo {
     }
 
     movePiece(player, piece, moveBy) {
-    const interval = setInterval(() => {
-        this.incrementPiecePosition(player, piece);
-        moveBy--;
+        const interval = setInterval(() => {
+            this.incrementPiecePosition(player, piece);
+            moveBy--;
 
-        if (moveBy === 0) {
-            clearInterval(interval);
+            if (moveBy === 0) {
+                clearInterval(interval);
 
-            // primeiro: verifica vitória
-            if (this.hasPlayerWon(player)) {
-                alert(`Player: ${player} has won!`);
-                this.resetGame();
-                return;
+                // vitória?
+                if (this.hasPlayerWon(player)) {
+                    alert(`Player: ${player} venceu!`);
+                    this.resetGame();
+                    return;
+                }
+
+                // REGRA NOVA: entrou na HOME → ganha +10 em outra peça
+                if (this.currentPositions[player][piece] === HOME_POSITIONS[player]) {
+
+                    const outside = this.getPiecesOutsideBase(player);
+
+                    if (outside.length > 0) {
+                        this.pendingBonusPiece = player;
+                        UI.highlightPieces(player, outside);
+                        return;
+                    }
+                }
+
+                // verifica captura
+                const isKill = this.checkForKill(player, piece);
+
+                if (isKill) {
+                    let extra = 20;
+
+                    const extraInterval = setInterval(() => {
+
+                        if (this.currentPositions[player][piece] === HOME_POSITIONS[player]) {
+                            clearInterval(extraInterval);
+                            this.state = STATE.DICE_NOT_ROLLED;
+                            return;
+                        }
+
+                        this.incrementPiecePosition(player, piece);
+                        extra--;
+
+                        if (extra === 0) {
+                            clearInterval(extraInterval);
+
+                            const killedAgain = this.checkForKill(player, piece);
+
+                            if (killedAgain) {
+                                this.movePiece(player, piece, 20);
+                                return;
+                            }
+
+                            this.state = STATE.DICE_NOT_ROLLED;
+                        }
+
+                    }, 150);
+
+                    return;
+                }
+
+                if (this.diceValue === 6) {
+                    this.state = STATE.DICE_NOT_ROLLED;
+                    return;
+                }
+
+                this.incrementTurn();
             }
-
-            // verifica captura
-            const isKill = this.checkForKill(player, piece);
-
-            if (isKill) {
-    let extra = 20;
-
-    const extraInterval = setInterval(() => {
-
-        // Se chegou na casa final → para tudo
-        if (this.currentPositions[player][piece] === HOME_POSITIONS[player]) {
-            clearInterval(extraInterval);
-            this.state = STATE.DICE_NOT_ROLLED;
-            return;
-        }
-
-        this.incrementPiecePosition(player, piece);
-        extra--;
-
-        // acabou os 20 passos
-        if (extra === 0) {
-            clearInterval(extraInterval);
-
-            // 🔥 VERIFICA SE COMEU NA CASA FINAL DOS 20
-            const killedAgain = this.checkForKill(player, piece);
-
-            if (killedAgain) {
-                // 🚀 COMEÇA OUTROS 20 AUTOMATICAMENTE
-                this.movePiece(player, piece, 20);
-                return;
-            }
-
-            // se NÃO comeu, segue o jogo normal
-            this.state = STATE.DICE_NOT_ROLLED;
-        }
-
-    }, 150);
-
-    return;
-}
-
-
-            // se tirou 6, joga de novo
-            if (this.diceValue === 6) {
-                this.state = STATE.DICE_NOT_ROLLED;
-                return;
-            }
-
-            // senão, passa a vez
-            this.incrementTurn();
-        }
-    }, 200);
-}
+        }, 200);
+    }
 
     checkForKill(player, piece) {
         const currentPosition = this.currentPositions[player][piece];
@@ -242,35 +236,46 @@ export class Ludo {
 
         let kill = false;
 
-        [0, 1, 2, 3].forEach(piece => {
-            const opponentPosition = this.currentPositions[opponent][piece];
+        [0, 1, 2, 3].forEach(p => {
+            const opponentPosition = this.currentPositions[opponent][p];
 
-            if(currentPosition === opponentPosition && !SAFE_POSITIONS.includes(currentPosition)) {
-                this.setPiecePosition(opponent, piece, BASE_POSITIONS[opponent][piece]);
-                kill = true
+            if (currentPosition === opponentPosition && !SAFE_POSITIONS.includes(currentPosition)) {
+                this.setPiecePosition(opponent, p, BASE_POSITIONS[opponent][p]);
+                kill = true;
             }
         });
 
-        return kill
+        return kill;
     }
 
     hasPlayerWon(player) {
-        return [0, 1, 2, 3].every(piece => this.currentPositions[player][piece] === HOME_POSITIONS[player])
+        return [0, 1, 2, 3].every(piece =>
+            this.currentPositions[player][piece] === HOME_POSITIONS[player]
+        );
     }
 
     incrementPiecePosition(player, piece) {
         this.setPiecePosition(player, piece, this.getIncrementedPosition(player, piece));
     }
-    
+
     getIncrementedPosition(player, piece) {
         const currentPosition = this.currentPositions[player][piece];
 
-        if(currentPosition === TURNING_POINTS[player]) {
+        if (currentPosition === TURNING_POINTS[player]) {
             return HOME_ENTRANCE[player][0];
         }
-        else if(currentPosition === 51) {
+        else if (currentPosition === 51) {
             return 0;
         }
         return currentPosition + 1;
+    }
+
+    // 🔥 NOVA FUNÇÃO: pega peças fora da base
+    getPiecesOutsideBase(player) {
+        return [0, 1, 2, 3].filter(piece => {
+            const pos = this.currentPositions[player][piece];
+            return !BASE_POSITIONS[player].includes(pos)
+                && pos !== HOME_POSITIONS[player];
+        });
     }
 }
