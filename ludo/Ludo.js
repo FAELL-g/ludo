@@ -3,7 +3,7 @@ import { UI } from './UI.js';
 
 export class Ludo {
     currentPositions = { P1: [], P2: [] };
-    pendingBonusPiece = null; // guarda jogador que tem bônus +10 da Home
+    pendingBonusPiece = null; // jogador que tem bônus +10 da Home
     _diceValue;
     _turn;
     _state;
@@ -101,7 +101,7 @@ export class Ludo {
         // Bônus +10 da Home
         if(this.pendingBonusPiece === player){
             this.pendingBonusPiece = null;
-            this.movePiece(player, piece, 10, true); // true indica que é bônus da Home
+            this.movePiece(player, piece, 10, true); // true = bônus da Home
             return;
         }
 
@@ -123,12 +123,12 @@ export class Ludo {
             if(!isHomeBonus && this.currentPositions[player][piece] === HOME_POSITIONS[player]){
                 clearInterval(interval);
 
-                // notificação de bônus +10
+                // 🔔 Mensagem de bônus +10
                 const outside = this.getPiecesOutsideBase(player);
                 if(outside.length > 0){
                     this.pendingBonusPiece = player;
                     UI.showNotification("Você guardou uma peça! Escolha uma peça para andar 10 casas.");
-                    UI.highlightPieces(player, outside);
+                    UI.highlightPieces(player, outside); // brilho/destaque
                 }
 
                 this.state = STATE.DICE_NOT_ROLLED;
