@@ -6,16 +6,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LudoJS Tutorial</title>
     <link rel="stylesheet" href="./ludo/style.css">
+    <style>
+        /* CSS mínimo para notificação */
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fffa90;
+            color: #000;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 16px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            z-index: 1000;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .notification.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Destaque de peça quando pode mover (brilho) */
+        .player-piece.highlight {
+            box-shadow: 0 0 15px 5px yellow;
+            transition: box-shadow 0.3s;
+        }
+    </style>
 </head>
 <body>
     <div class="ludo-container">
         <div class="ludo">
             <div class="player-pieces">
+                <!-- Peças do P1 -->
                 <div class="player-piece" player-id="P1" piece="0"></div>
                 <div class="player-piece" player-id="P1" piece="1"></div>
                 <div class="player-piece" player-id="P1" piece="2"></div>
                 <div class="player-piece" player-id="P1" piece="3"></div>
-                
+
+                <!-- Peças do P2 -->
                 <div class="player-piece" player-id="P2" piece="0"></div>
                 <div class="player-piece" player-id="P2" piece="1"></div>
                 <div class="player-piece" player-id="P2" piece="2"></div>
@@ -27,16 +59,20 @@
                 <div class="player-base" player-id="P2"></div>
             </div>
         </div>
+
         <div class="footer">
             <div class="row">
                 <button id="dice-btn" class="btn btn-dice">Roll</button>
                 <div class="dice-value"></div>
                 <button id="reset-btn" class="btn btn-reset">Reset</button>
             </div>
-            <h2 class="active-player">Active Player: <span></span> </h2>
+            <h2 class="active-player">Active Player: <span></span></h2>
         </div>
     </div>
 
-    <script src="./main.js" type="module"></script>
+    <!-- Notificação -->
+    <div id="notification" class="notification hidden"></div>
+
+    <script type="module" src="./main.js"></script>
 </body>
 </html>
