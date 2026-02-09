@@ -186,10 +186,17 @@ export class Ludo {
 
                 const isKill = this.checkForKill(player, piece);
 
-                if(isKill || this.diceValue === 6) {
-                    this.state = STATE.DICE_NOT_ROLLED;
-                    return;
-                }
+if (isKill) {
+    // 🔥 ANDA MAIS 20 CASAS QUANDO CAPTURAR
+    this.movePiece(player, piece, 20);
+    return;
+}
+
+if (this.diceValue === 6) {
+    this.state = STATE.DICE_NOT_ROLLED;
+    return;
+}
+
 
                 this.incrementTurn();
             }
