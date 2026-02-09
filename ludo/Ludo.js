@@ -176,18 +176,20 @@ export class Ludo {
         if (moveBy === 0) {
             clearInterval(interval);
 
-            // verifica vitória
+            // primeiro: verifica vitória
             if (this.hasPlayerWon(player)) {
                 alert(`Player: ${player} has won!`);
                 this.resetGame();
                 return;
             }
 
+            // AGORA verifica captura
             const isKill = this.checkForKill(player, piece);
 
             if (isKill) {
-                // 🔥 ANDA +20 CASAS DE VERDADE
+                // 🔥 BONUS REAL DE +20 (AGORA FUNCIONA)
                 let extra = 20;
+
                 const extraInterval = setInterval(() => {
                     this.incrementPiecePosition(player, piece);
                     extra--;
@@ -198,14 +200,16 @@ export class Ludo {
                     }
                 }, 150);
 
-                return;
+                return; // MUITO IMPORTANTE — para aqui
             }
 
+            // se tirou 6, joga de novo
             if (this.diceValue === 6) {
                 this.state = STATE.DICE_NOT_ROLLED;
                 return;
             }
 
+            // senão, passa a vez
             this.incrementTurn();
         }
     }, 200);
